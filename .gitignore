@@ -1,0 +1,19 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# virtual environment
+.venv
+
+# data
+*.npy
+*.npz
+*.png
+*.pdf
+*.msh
+*.txt
+*.json

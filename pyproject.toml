@@ -1,0 +1,31 @@
+[project]
+authors = [
+    {email = "ka679@bath.ac.uk", name = "Kamran Arora"}
+]
+name = "dean-kawasaki-DG"
+version = "0.0.1"
+description = "A discontinuous Galerkin approximation of the Dean-Kawasaki equation"
+readme = "README.md"
+urls = {repository = "https://github.com/kamran-arora/dean-kawasaki-DG"}
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build]
+include = ["dean_kawasaki_DG/"]
+
+[tool.ruff]
+extend-include = ["*.ipynb"]
+src = []
+
+[tool.ruff.lint]
+unfixable = ["F401"]
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
+
+[tool.pytest.ini_options]
+filterwarnings = [
+    "ignore::DeprecationWarning"
+]
