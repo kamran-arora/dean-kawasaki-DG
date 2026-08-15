@@ -17,3 +17,4 @@ wheels/
 *.msh
 *.txt
 *.json
+*.out

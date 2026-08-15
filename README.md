@@ -9,10 +9,9 @@ The code is written using the [Firedrake](https://github.com/firedrakeproject/fi
 ## Reproducing figures
 
 The following require you to first run [dk_monte_carlo.py](experiments/dk_monte_carlo.py) using the parameters specified in the paper
-- Table 1: [convergence_table.ipynb](experiments/convergence_table.ipynb)
-- Table 2: [convergence_table.ipynb](experiments/convergence_table.ipynb)
-- Figure 1a: [cost_comparison.ipynb](experiments/cost_comparison.ipynb)
-- Figure 1b: [cost_comparison.ipynb](experiments/cost_comparison.ipynb)
+- Figure 1: [smooth_varphi.ipynb](experiments/smooth_varphi.ipynb)
+- Figure 2a: [indicator_varphi.ipynb](experiments/indicator_varphi.ipynb)
+- Figure 2b: [indicator_varphi.ipynb](experiments/indicator_varphi.ipynb)
 
 The following can be run as standalone notebooks
 - Figure 2a: [external_potential.ipynb](experiments/external_potential.ipynb)
