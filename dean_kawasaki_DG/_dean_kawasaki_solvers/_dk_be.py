@@ -1,16 +1,5 @@
 import numpy as np
-from firedrake import (
-    Constant,
-    Function,
-    FunctionSpace,
-    LinearVariationalProblem,
-    LinearVariationalSolver,
-    SpatialCoordinate,
-    TestFunction,
-    TrialFunction,
-    dx,
-    inner,
-)
+from firedrake import *
 
 from dean_kawasaki_DG._forms import cg_diffusion_form, sipdg_diffusion_form
 from dean_kawasaki_DG._noise import DeanKawasakiNoise
@@ -63,7 +52,6 @@ class _DKBE(SolverBase):
         self._rho_tmp = Function(self._V_rho, name="rho_tmp")
         self._rho_pos = Function(self._V_rho, name="rho_positive")
 
-        include_jump_terms = self.family == "DG"
         self.noise = DeanKawasakiNoise(
             self._mesh,
             self._V_rho,
@@ -73,7 +61,6 @@ class _DKBE(SolverBase):
             self._num_particles,
             self._variant,
             gradient=noise_gradient,
-            include_jump_terms=include_jump_terms,
             seed=SEED,
             sampling_backend=noise_sampling_backend,
         )

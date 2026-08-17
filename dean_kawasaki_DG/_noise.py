@@ -4,27 +4,7 @@ import numpy as np
 import scipy.linalg
 import scipy.sparse as sp
 import scipy.sparse.linalg as spla
-from firedrake import (
-    CellVolume,
-    FacetNormal,
-    FiniteElement,
-    Function,
-    FunctionSpace,
-    JacobianDeterminant,
-    LinearVariationalProblem,
-    LinearVariationalSolver,
-    TensorFunctionSpace,
-    TestFunction,
-    TrialFunction,
-    VectorFunctionSpace,
-    assemble,
-    avg,
-    dS,
-    dx,
-    grad,
-    inner,
-    jump,
-)
+from firedrake import *
 from pyop2 import op2
 from ufl.geometry import QuadratureWeight
 
@@ -58,7 +38,6 @@ class DeanKawasakiNoise:
         variant: str = "equispaced",
         *,
         gradient: str = "broken",
-        include_jump_terms: bool = False,
         seed: int | None = None,
         quadrature_degree: int | None = None,
         sampling_backend: str = "cell",
@@ -80,7 +59,6 @@ class DeanKawasakiNoise:
         self.gradient = gradient
         self.variant = variant
         self.sampling_backend = sampling_backend
-        self.include_jump_terms = include_jump_terms and gradient == "full"
         self.coefficient = np.sqrt(2.0 * kappa * dt / num_particles)
         self.quadrature_degree = quadrature_degree or max(2 * degree + 3, 6)
         self.rng = self._make_rng(mesh.comm, seed)
@@ -111,6 +89,9 @@ class DeanKawasakiNoise:
         return np.random.default_rng(streams[comm.rank])
 
     def _setup_diagonal_sampler(self):
+        """
+        Constructs noise when p==1 by solving a projection problem
+        """
         self._sampler_kind = "diagonal"
         self._unit_noise = Function(self.space)
         self._rho_average_space = FunctionSpace(
@@ -139,6 +120,9 @@ class DeanKawasakiNoise:
         )
 
     def _setup_cell_diagonal_sampler(self):
+        """
+        Constructs noise when p==1 in a cell-local manner
+        """
         self._sampler_kind = "cell-diagonal"
         self._rho_weight = Function(self.density_space)
         self._unit_noise = Function(self.space)
@@ -206,6 +190,9 @@ class DeanKawasakiNoise:
         )
 
     def _setup_global_factor_sampler(self):
+        """
+        Constructs noise when p>1 by factorising a dense SciPy matrix
+        """
         if self.mesh.comm.size != 1:
             raise NotImplementedError(
                 "The legacy global noise backend is only supported in serial"
@@ -227,6 +214,9 @@ class DeanKawasakiNoise:
         )
 
     def _setup_cell_factor_sampler(self):
+        """
+        Constructs noise when p>1 by doing a pivoted Cholesky factorisation on each element (i.e. exploits the block-diagonal structure)
+        """
         self._sampler_kind = "cell-factor"
         self._rho_weight = Function(self.density_space)
         self._unit_noise = Function(self.space)
@@ -650,8 +640,11 @@ void dk_noise_factor(
             self._factor_loop()
 
     def variational_form(self, test_function):
+        """
+        If gradient == "full" we include the facet contribution of the noise
+        """
         form = inner(self.field, grad(test_function)) * dx
-        if self.include_jump_terms:
+        if self.gradient == "full":
             n = FacetNormal(self.mesh)
             form -= inner(avg(self.field), jump(test_function, n)) * dS
         return self.coefficient * form
